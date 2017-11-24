@@ -28,8 +28,15 @@ import org.kaaproject.kaa.common.endpoint.gen.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hyy.cn.NotificationPoint;
 
 /**
@@ -46,6 +53,9 @@ public class WaterMeterSwitch
 {
     @Autowired
     private RestTemplate restTemplate;
+    
+    @Value("${stxia.url.open}")
+    private String url;
     
     private static final Logger LOG = LoggerFactory.getLogger(WaterMeterSwitch.class);
 
@@ -70,16 +80,34 @@ public class WaterMeterSwitch
          */
         kaaClient.addNotificationListener(new NotificationListener()
         {
+            
             @Override
             public void onNotification(long id, NotificationPoint notification)
             {
                 LOG.info("Notification from the topic with id [{}] and name [{}] received.", id, getTopic(id).getName());
                 LOG.info("+++++++++++++++++++++++++++Notification body: {} \n", notification.getMessage());
-                callForOpen();
+                JSONObject j = JSONObject.parseObject(notification.getMessage());
+                callForOpen("open","50002201");
             }
             
-            private void callForOpen(){
-                restTemplate.postForObject(url, request, responseType, uriVariables)
+            private void callForOpen(String method,String meterSn){
+                ResponseEntity<String> a = restTemplate.exchange(url, HttpMethod.POST, getHttpEntity(method,meterSn), String.class);
+                JSONObject j = JSONObject.parseObject(a.getBody());
+                System.out.println(j.get("data_value"));
+            }
+            
+            private HttpEntity<String> getHttpEntity(String method,String meterSn){
+                StringBuffer bodyVal = new StringBuffer();
+                bodyVal.append("method=hwa.hvalve.");
+                bodyVal.append(method);
+                bodyVal.append("&meter_sn=");
+                bodyVal.append(meterSn);
+                bodyVal.append("&app_sn=&7573f4927e5ee92e&extend=hwa&user_token=9cab82811914830847007c9cf30670a2");
+                LOG.debug("-------------------bodyVal:---------------------"+bodyVal.toString());
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                HttpEntity<String> entity = new HttpEntity<String>(bodyVal.toString(), headers);
+                return entity;
             }
         });
         /*

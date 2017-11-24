@@ -10,4 +10,4 @@ stxia:
   url:
     getAll: http://47.93.227.123/?method=hwa.data.gets&app_sn=7573f4927e5ee92e&extend=hwa&user_token=9cab82811914830847007c9cf30670a2&day=2017-11-22
     open: http://47.93.227.123/
-    close:
+    close: http://47.93.227.123/
