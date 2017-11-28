@@ -14,6 +14,9 @@
  */
 package com.stxia.middleware;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.stxia.middleware.configuration.MyMappingJackson2HttpMessageConverter;
 import com.stxia.middleware.watermeter.enable.WaterMeterSwitch;
-
 
 /**
  * ClassName: MiddlewareMain <br/>
@@ -36,19 +38,19 @@ import com.stxia.middleware.watermeter.enable.WaterMeterSwitch;
  */
 @SpringBootApplication
 @EnableScheduling
-public class MiddlewareMain
-{
-    public static void main(String[] args)
-    {
-        SpringApplication.run(MiddlewareMain.class, args);
-        WaterMeterSwitch wms = new WaterMeterSwitch();
-        wms.swi();
-    }
+public class MiddlewareMain {
+	private static final Logger LOG = LoggerFactory.getLogger(MiddlewareMain.class);
 
-    @Bean
-    public RestTemplate getRestTemplate(){
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MyMappingJackson2HttpMessageConverter());
-        return restTemplate;
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(MiddlewareMain.class, args);
+		WaterMeterSwitch wms = new WaterMeterSwitch();
+		wms.swi();
+	}
+
+	@Bean
+	public RestTemplate getRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.getMessageConverters().add(new MyMappingJackson2HttpMessageConverter());
+		return restTemplate;
+	}
 }

@@ -86,8 +86,12 @@ public class WaterMeterSwitch
             {
                 LOG.info("Notification from the topic with id [{}] and name [{}] received.", id, getTopic(id).getName());
                 LOG.info("+++++++++++++++++++++++++++Notification body: {} \n", notification.getMessage());
-                JSONObject j = JSONObject.parseObject(notification.getMessage());
-                callForOpen("open","50002201");
+                try{
+                    JSONObject j = JSONObject.parseObject(notification.getMessage());
+                    callForOpen(j.getString("method"),j.getString("meterSn"));
+                }catch(Exception e){
+                	LOG.error("message execute error :"+notification.getMessage()+"\n "+e);
+                }
             }
             
             private void callForOpen(String method,String meterSn){
