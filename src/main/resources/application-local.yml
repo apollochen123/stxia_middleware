@@ -1,8 +1,0 @@
-security:
-  basic:
-    enabled: false
-server:
-  port: 9888
-spring:
-  application:
-    name: dynamicDataSource-client

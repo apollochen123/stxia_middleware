@@ -34,10 +34,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson.JSONObject;
 import com.hyy.cn.NotificationPoint;
+import com.stxia.middleware.watermeter.enable.constants.WaterMeterSwitchConstants;
 
 /**
  * ClassName: WaterMeterSwitch <br/>
@@ -53,10 +56,10 @@ public class WaterMeterSwitch
 {
     @Autowired
     private RestTemplate restTemplate;
-    
+
     @Value("${stxia.url.open}")
     private String url;
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(WaterMeterSwitch.class);
 
     private static KaaClient kaaClient;
@@ -80,38 +83,52 @@ public class WaterMeterSwitch
          */
         kaaClient.addNotificationListener(new NotificationListener()
         {
-            
+
             @Override
             public void onNotification(long id, NotificationPoint notification)
             {
                 LOG.info("Notification from the topic with id [{}] and name [{}] received.", id, getTopic(id).getName());
                 LOG.info("+++++++++++++++++++++++++++Notification body: {} \n", notification.getMessage());
-                try{
+                try
+                {
                     JSONObject j = JSONObject.parseObject(notification.getMessage());
-                    callForOpen(j.getString("method"),j.getString("meterSn"));
-                }catch(Exception e){
-                	LOG.error("message execute error :"+notification.getMessage()+"\n "+e);
+                    callForOpen(j.getString(WaterMeterSwitchConstants.METHOD), j.getString(WaterMeterSwitchConstants.METERSN));
+                }
+                catch (Exception e)
+                {
+                    LOG.error("message execute error :" + notification.getMessage() + "\n " + e);
                 }
             }
-            
-            private void callForOpen(String method,String meterSn){
-                ResponseEntity<String> a = restTemplate.exchange(url, HttpMethod.POST, getHttpEntity(method,meterSn), String.class);
+
+            private void callForOpen(String method, String meterSn)
+            {
+                ResponseEntity<String> a = restTemplate.exchange(url, HttpMethod.POST, getHttpEntity(method, meterSn), String.class);
                 JSONObject j = JSONObject.parseObject(a.getBody());
                 System.out.println(j.get("data_value"));
             }
-            
-            private HttpEntity<String> getHttpEntity(String method,String meterSn){
-                StringBuffer bodyVal = new StringBuffer();
-                bodyVal.append("method=hwa.hvalve.");
-                bodyVal.append(method);
-                bodyVal.append("&meter_sn=");
-                bodyVal.append(meterSn);
-                bodyVal.append("&app_sn=&7573f4927e5ee92e&extend=hwa&user_token=9cab82811914830847007c9cf30670a2");
-                LOG.debug("-------------------bodyVal:---------------------"+bodyVal.toString());
+
+            private HttpEntity<MultiValueMap<String, String>> getHttpEntity(String method, String meterSn)
+            {
+                MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<String, String>();
+                if (WaterMeterSwitchConstants.MULTIVALUEMAP_OPEN.equals(method))
+                {
+                    multiValueMap.add(WaterMeterSwitchConstants.METHOD, WaterMeterSwitchConstants.MULTIVALUEMAP_METHOD_OPEN_VALUE);
+                }
+                else if (WaterMeterSwitchConstants.MULTIVALUEMAP_CLOSE.equals(method))
+                {
+                    multiValueMap.add(WaterMeterSwitchConstants.METHOD, WaterMeterSwitchConstants.MULTIVALUEMAP_METHOD_CLOSE_VALUE);
+                }
+                else
+                {
+                    throw new RuntimeException(WaterMeterSwitchConstants.ERROR_MESSAGE_METHOD);
+                }
+                multiValueMap.add(WaterMeterSwitchConstants.MULTIVALUEMAP_METER_SN_KEY, meterSn);
+                multiValueMap.add(WaterMeterSwitchConstants.MULTIVALUEMAP_APP_SN_KEY, WaterMeterSwitchConstants.MULTIVALUEMAP_APP_SN_VALUE);
+                multiValueMap.add(WaterMeterSwitchConstants.MULTIVALUEMAP_EXTEND_KEY, WaterMeterSwitchConstants.MULTIVALUEMAP_EXTEND_VALUE);
+                multiValueMap.add(WaterMeterSwitchConstants.MULTIVALUEMAP_USER_TOKEN_KEY, WaterMeterSwitchConstants.MULTIVALUEMAP_USER_TOKEN_VALUE);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                HttpEntity<String> entity = new HttpEntity<String>(bodyVal.toString(), headers);
-                return entity;
+                return new HttpEntity<>(multiValueMap, headers);
             }
         });
         /*
@@ -180,8 +197,9 @@ public class WaterMeterSwitch
         }
         return res;
     }
-    
-    private static Topic getTopic(long id) {
+
+    private static Topic getTopic(long id)
+    {
         for (Topic t : topics)
             if (t.getId() == id)
                 return t;

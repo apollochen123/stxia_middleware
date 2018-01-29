@@ -8,6 +8,6 @@ spring:
     name: dynamicDataSource-client
 stxia:
   url:
-    getAll: http://47.93.227.123/?method=hwa.data.gets&app_sn=7573f4927e5ee92e&extend=hwa&user_token=9cab82811914830847007c9cf30670a2&day=
+    getAll: http://47.93.227.123
     open: http://47.93.227.123/
     close: http://47.93.227.123/
