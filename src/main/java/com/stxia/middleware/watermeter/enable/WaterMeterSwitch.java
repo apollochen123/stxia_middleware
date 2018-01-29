@@ -109,7 +109,7 @@ public class WaterMeterSwitch
 
             private HttpEntity<MultiValueMap<String, String>> getHttpEntity(String method, String meterSn)
             {
-                MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<String, String>();
+                MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
                 if (WaterMeterSwitchConstants.MULTIVALUEMAP_OPEN.equals(method))
                 {
                     multiValueMap.add(WaterMeterSwitchConstants.METHOD, WaterMeterSwitchConstants.MULTIVALUEMAP_METHOD_OPEN_VALUE);
