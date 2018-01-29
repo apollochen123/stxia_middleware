@@ -52,7 +52,7 @@ public class UploadData
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${stxia.url.getAll}")
+    @Value("${stxia.url.host}")
     private String url;
 
     private static Logger LOG = Logger.getLogger(UploadData.class);

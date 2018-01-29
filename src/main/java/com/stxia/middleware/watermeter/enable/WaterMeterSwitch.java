@@ -57,7 +57,7 @@ public class WaterMeterSwitch
     @Autowired
     private RestTemplate restTemplate;
 
-    @Value("${stxia.url.open}")
+    @Value("${stxia.url.host}")
     private String url;
 
     private static final Logger LOG = LoggerFactory.getLogger(WaterMeterSwitch.class);
