@@ -14,16 +14,13 @@
  */
 package com.stxia.middleware.upload;
 
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
-import org.kaaproject.kaa.client.DesktopKaaPlatformContext;
-import org.kaaproject.kaa.client.Kaa;
 import org.kaaproject.kaa.client.KaaClient;
-import org.kaaproject.kaa.client.SimpleKaaClientStateListener;
-import org.kaaproject.kaa.client.logging.strategies.RecordCountLogUploadStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -50,10 +47,13 @@ import com.stxia.middleware.upload.constants.UploadDataConstants;
 public class UploadData
 {
     @Autowired
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${stxia.url.host}")
     private String url;
+    
+    @Autowired
+    private KaaClient kaaClient;
 
     private static Logger LOG = Logger.getLogger(UploadData.class);
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -78,29 +78,23 @@ public class UploadData
             .queryParam(UploadDataConstants.EXTEND_KEY, UploadDataConstants.EXTEND_VALUE)
             .queryParam(UploadDataConstants.USER_TOKEN_KEY, UploadDataConstants.USER_TOKEN_VALUE)
             .queryParam(UploadDataConstants.DAY_KEY, dateFormat.format(System.currentTimeMillis()));
-
-        HwaDto result = restTemplate.getForObject(urlVariables.build().encode().toUri(), HwaDto.class);
+        URI url = urlVariables.build().encode().toUri();
+        LOG.info("-----------------URI------------------:"+url.toString());
+        HwaDto result = restTemplate.getForObject(url, HwaDto.class);
         LOG.info("-----------------RequestSuccess------------------");
+        LOG.info("-----------------DataSize：------------------"+result.getData_value().size());
         return result;
     }
 
     private void sendData()
     {
         LOG.info("-----------------startKaaClient------------------");
-        KaaClient kaaClient = Kaa.newClient(new DesktopKaaPlatformContext(), new SimpleKaaClientStateListener(), true);
-        //配置上传策略
-        RecordCountLogUploadStrategy strategy = new RecordCountLogUploadStrategy(1);
-        strategy.setMaxParallelUploads(1);
-        kaaClient.setLogUploadStrategy(strategy);
-        // 启动
-        kaaClient.start();
 
         List<HwaDataDto> uploadDatas = getAllHwaData().getData_value();
 
-        if (null == uploadDatas)
+        if (null == uploadDatas || uploadDatas.isEmpty())
         {
-            kaaClient.stop();
-            throw new RuntimeException(UploadDataConstants.GETALL_ERROR_MESSAGE);
+            return ;
         }
 
         for (HwaDataDto hw : uploadDatas)
@@ -111,11 +105,10 @@ public class UploadData
             }
             catch (InterruptedException | ExecutionException e)
             {
-                e.printStackTrace();
+                LOG.error(e);
             }
         }
         LOG.info("-----------------upload finished------------------");
-        kaaClient.stop();
     }
 
     private hyy_mdjl generateHY(HwaDataDto hw)

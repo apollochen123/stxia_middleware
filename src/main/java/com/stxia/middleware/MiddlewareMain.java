@@ -21,7 +21,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 import com.stxia.middleware.configuration.MyMappingJackson2HttpMessageConverter;
-import com.stxia.middleware.watermeter.enable.WaterMeterSwitch;
 
 /**
  * ClassName: MiddlewareMain <br/>
@@ -40,8 +39,6 @@ public class MiddlewareMain
     public static void main(String[] args)
     {
         SpringApplication.run(MiddlewareMain.class, args);
-        WaterMeterSwitch wms = new WaterMeterSwitch();
-        wms.swi();
     }
 
     @Bean
