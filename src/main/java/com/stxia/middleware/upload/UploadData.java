@@ -58,9 +58,9 @@ public class UploadData
     private static Logger LOG = Logger.getLogger(UploadData.class);
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-    // 每天早上6点执行
-    //@Scheduled(cron = "0 0 6 * * ?")
-    @Scheduled(initialDelay = 10000, fixedDelay = 100000)
+    // 每天早上12点执行
+    @Scheduled(cron = "0 0 12 * * ?")
+    //@Scheduled(initialDelay = 10000, fixedDelay = 100000)
     public void timerInit()
     {
         sendData();

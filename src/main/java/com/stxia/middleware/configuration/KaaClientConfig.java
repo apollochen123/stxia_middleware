@@ -64,6 +64,7 @@ public class KaaClientConfig
     @Bean
     public KaaClient getKaaClient()
     {
+        LOG.info("------------------------start KaaClient------------------------");
         KaaClient kaaClient = Kaa.newClient(new DesktopKaaPlatformContext(), new SimpleKaaClientStateListener(), true);
         NotificationTopicListListener topicListListener = new BasicNotificationTopicListListener();
         kaaClient.addTopicListListener(topicListListener);
@@ -76,6 +77,7 @@ public class KaaClientConfig
         kaaClient.addNotificationListener(new MyNotificationListener(restTemplate, url));
 
         kaaClient.start();
+        LOG.info("------------------------started KaaClient------------------------");
         return kaaClient;
     }
 
