@@ -51,8 +51,8 @@
 			<version>1.2.31</version>
 		</dependency>
 		<dependency>
-			<groupId>heng.yuan.xiang</groupId>
-			<artifactId>heng-yuan-xiang</artifactId>
+			<groupId>heng.you.yuan</groupId>
+			<artifactId>heng-you-yuan</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
