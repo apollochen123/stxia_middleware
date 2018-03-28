@@ -124,11 +124,16 @@ public class UploadData
         hy.setTotalFlow(hw.getTotalFlow());
         hy.setTotalWorkTime(hw.getTotalWorkTime());
         hy.setUUID(hw.getEpid());
-        hy.setValveClosingTime(hw.getValveOpeningTime());
-        hy.setValveOpeningStatus(hw.getValveOpeningStatus());
+        hy.setValveClosingTime(hw.getValveClosingTime());
+        
+        if(Double.parseDouble(hw.getValveOpeningStatus())>0) {
+            hy.setValveOpeningStatus("open");
+        }else {
+            hy.setValveOpeningStatus("close");
+        }
         hy.setValveOpeningTime(hw.getValveOpeningTime());
         hy.setValveRealTime(hw.getValveRealTime());
         return hy;
     }
-
+    
 }
